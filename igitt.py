@@ -11,7 +11,7 @@ Usage
 -----
 
 For cloning repositories, use:
-    igitt clone CONTEXT [PACKAGE]
+    igitt clone CONTEXT [PACKAGE] [github|bitbucket]
 
 For updating repositories, use:
     igitt pull [PACKAGE]
@@ -72,7 +72,7 @@ def perform_clone(context, package):
         cmd = ['git', 'clone', uri]
         subprocess.call(cmd)
         return
-    
+
     data = query_repos(context)
     base_uri = 'git@github.com:%s/%s.git'
     for repo in data['repositories']:
@@ -101,7 +101,7 @@ def perform_pull(package):
         cmd = ['git', 'pull', 'origin', branch]
         subprocess.call(cmd)
         return
-    
+
     contents = os.listdir('.')
     for child in contents:
         if not os.path.isdir(child):
@@ -147,7 +147,7 @@ def perform_st(package):
         cmd = ['git', 'status']
         subprocess.call(cmd)
         return
-    
+
     contents = os.listdir('.')
     for child in contents:
         if not os.path.isdir(child):
@@ -169,7 +169,7 @@ def perform_b(package):
         cmd = ['git', 'branch']
         subprocess.call(cmd)
         return
-    
+
     contents = os.listdir('.')
     for child in contents:
         if not os.path.isdir(child):
@@ -189,12 +189,12 @@ if __name__ == '__main__':
     if len(args) < 2:
         print "No action specified. Aborting."
         print_usage_and_exit()
-    
+
     action = args[1]
     if action not in ['clone', 'pull', 'backup', 'st', 'b']:
         print "Invalid action '%s'" % action
         print_usage_and_exit()
-    
+
     if action == 'clone':
         if len(args) < 3:
             print "No context specified. Aborting."
@@ -205,14 +205,14 @@ if __name__ == '__main__':
             package = args[3]
         perform_clone(context, package)
         sys.exit(0)
-    
+
     if action == 'pull':
         package = None
         if len(args) > 2:
             package = args[2]
         perform_pull(package)
         sys.exit(0)
-    
+
     if action == 'backup':
         if len(args) != 3:
             print "Need context to perform backup"
@@ -220,20 +220,20 @@ if __name__ == '__main__':
         context = args[2]
         perform_backup(context)
         sys.exit(0)
-    
+
     if action == 'st':
         package = None
         if len(args) > 2:
             package = args[2]
         perform_st(package)
         sys.exit(0)
-    
+
     if action == 'b':
         package = None
         if len(args) > 2:
             package = args[2]
         perform_b(package)
         sys.exit(0)
-    
+
     print "Invalid action '%s'" % action
     print_usage_and_exit()
