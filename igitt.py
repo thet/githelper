@@ -37,9 +37,11 @@ import urllib2
 import json
 import subprocess
 
+API_URL = 'http://github.com/api/v2/json/repos/show/%s'
+BASE_URI = 'git@github.com:%s/%s.git'
 
 def query_repos(context):
-    url = 'http://github.com/api/v2/json/repos/show/%s' % context
+    url = API_URL % context
     try:
         res = urllib2.urlopen(url)
     except urllib2.URLError, e:
@@ -66,7 +68,7 @@ def print_usage_and_exit():
 
 
 def perform_clone(context, package):
-    base_uri = 'git@github.com:%s/%s.git'
+    base_uri = BASE_URI
     if package is not None:
         uri = base_uri % (context, package)
         cmd = ['git', 'clone', uri]
@@ -74,7 +76,7 @@ def perform_clone(context, package):
         return
 
     data = query_repos(context)
-    base_uri = 'git@github.com:%s/%s.git'
+    base_uri = BASE_URI
     for repo in data['repositories']:
         name = repo['name']
         uri = base_uri % (context, name)
@@ -123,7 +125,7 @@ def perform_backup(context):
     os.chdir(context)
     contents = os.listdir('.')
     data = query_repos(context)
-    base_uri = 'git@github.com:%s/%s.git'
+    base_uri = BASE_URI
     for repo in data['repositories']:
         name = repo['name']
         fs_name = '%s.git' % name
@@ -190,6 +192,11 @@ if __name__ == '__main__':
         print "No action specified. Aborting."
         print_usage_and_exit()
 
+    import pdb; pdb.set_trace()
+    if 'bitbucket' in list(args):
+        API_URL = 'https://api.bitbucket.org/1.0/users/%s'
+        BASE_URI = 'git@bitbucket.org:%s/%s.git'
+
     action = args[1]
     if action not in ['clone', 'pull', 'backup', 'st', 'b']:
         print "Invalid action '%s'" % action
@@ -201,14 +208,14 @@ if __name__ == '__main__':
             print_usage_and_exit()
         context = args[2]
         package = None
-        if len(args) > 3:
+        if len(args) > 3 and args[3] != 'bitbucket':
             package = args[3]
         perform_clone(context, package)
         sys.exit(0)
 
     if action == 'pull':
         package = None
-        if len(args) > 2:
+        if len(args) >  2 and args[2] != 'bitbucket':
             package = args[2]
         perform_pull(package)
         sys.exit(0)
@@ -223,14 +230,14 @@ if __name__ == '__main__':
 
     if action == 'st':
         package = None
-        if len(args) > 2:
+        if len(args) > 2 and args[2] != 'bitbucket':
             package = args[2]
         perform_st(package)
         sys.exit(0)
 
     if action == 'b':
         package = None
-        if len(args) > 2:
+        if len(args) > 2 and args[2] != 'bitbucket':
             package = args[2]
         perform_b(package)
         sys.exit(0)
